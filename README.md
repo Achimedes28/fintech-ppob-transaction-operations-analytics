@@ -120,23 +120,32 @@ Transaction flow exhibits distinct temporal cycles across the 24-hour window:
 
 ```
 .
-├── Data_Rubik_Aug2026_Cleaned.db             # Indexed SQLite Database (316k+ records)
-├── Merged_Data_Rubik_Masked.csv               # Cleaned & Masked Transaction Log CSV
-├── Merged_Data_Rubik_Masked.xlsx              # Multi-sheet Excel with Aggregated Pivot Tables
-├── anonymization_mapping.json                 # Verification mapping for masked entities
-├── analysis_and_charts.py                     # Python EDA & High-Res Chart Generation Script
-├── generate_pptx.py                           # Python Automated PowerPoint Deck Builder
-├── queries.sql                                # Advanced SQL Queries (CTEs, Window Functions, Pareto)
-├── summary_metrics.json                       # Extracted KPI & Summary Metric Payload
-├── Fintech_PPOB_Transaction_Operations_Analytics.pptx # Executive 10-Slide Widescreen Deck
-├── visualizations/                            # Generated High-Resolution 300 DPI Figures
+├── data/
+│   ├── database/
+│   │   └── Data_Rubik_Aug2026_Cleaned.db             # Indexed SQLite DB (316k+ transactions)
+│   ├── raw/
+│   │   ├── Merged_Data_Rubik_01_05_06_August_2026_Masked.csv   # Flat CSV Dataset
+│   │   └── Merged_Data_Rubik_01_05_06_August_2026_Masked.xlsx  # Multi-sheet Excel
+│   └── mappings/
+│       └── anonymization_mapping.json                 # Private NDA mapping (gitignored)
+├── sql/
+│   └── queries.sql                                    # CTEs, Window Functions, Pareto Queries
+├── src/
+│   ├── analysis_and_charts.py                         # EDA & High-Res Visualizations Generator
+│   └── generate_pptx.py                               # 16:9 Automated PowerPoint Deck Builder
+├── presentations/
+│   └── Fintech_PPOB_Transaction_Operations_Analytics.pptx # Executive 10-Slide Deck
+├── visualizations/                                    # 300 DPI Exported Visual Assets
 │   ├── 01_overall_status_distribution.png
 │   ├── 02_top10_products_volume_and_failure_rate.png
 │   ├── 03_critical_high_failure_products.png
 │   ├── 04_biller_performance_and_sla.png
 │   ├── 05_hourly_traffic_load_and_failure_trend.png
 │   └── 06_pareto_volume_concentration.png
-└── README.md                                  # Portfolio Documentation & Business Case Study
+├── metrics/
+│   └── summary_metrics.json                           # Computed KPI JSON Payload
+├── .gitignore
+└── README.md                                          # Business Case Documentation
 ```
 
 ---
