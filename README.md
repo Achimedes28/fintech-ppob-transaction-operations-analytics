@@ -3,8 +3,9 @@
 
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![SQL](https://img.shields.io/badge/SQL-SQLite3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Interactive BI](https://img.shields.io/badge/Interactive%20BI-Dashboard-0EA5E9?style=for-the-badge&logo=googlechrome&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-DAX%20Model-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
 ![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=for-the-badge&logo=pandas&logoColor=white)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-Visualization-11557C?style=for-the-badge)
 ![PowerPoint](https://img.shields.io/badge/PowerPoint-Executive%20Deck-D24726?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed%20Portfolio-10B981?style=for-the-badge)
 
@@ -22,6 +23,19 @@ The primary business objective is to diagnose transaction failure root causes, e
 * **System Failure SLA Gap:** `10.16%` (`32,150` failed transactions)
 * **Failure Concentration Risk:** **60.9%** of all system failures originate from just **2 vendor billers** (`Biller_29` and `Biller_26`).
 * **Active Ecosystem Scale:** `46` B2B Partners, `31` Upstream Billers, `318` Unique Product SKUs, `291,662` Unique End-Customers.
+
+---
+
+## 💻 Interactive BI Dashboard (Power BI Style Web App)
+
+Included in this portfolio is a fully interactive, responsive **BI Dashboard** (`dashboard/index.html`) featuring:
+* **Interactive Slicers:** Filter live data by Date (Aug 1, 5, 6), Upstream Biller (31 vendors), SLA Risk Category, and SKU search.
+* **Real-time KPI Cards:** Dynamic recalculation of Volume, Success/Failure counts, and SLA percentages.
+* **6 Interactive Charts:** Hover tooltips, dual-axis volume vs. failure rate curves, horizontal SLA rankings, and Pareto curves.
+* **Interactive Table:** Sortable columns, live SKU search, pagination, and one-click CSV export.
+
+> **To View Dashboard Locally:**
+> Double-click `dashboard/index.html` or run `open dashboard/index.html` on macOS.
 
 ---
 
@@ -120,6 +134,11 @@ Transaction flow exhibits distinct temporal cycles across the 24-hour window:
 
 ```
 .
+├── dashboard/                                         # Interactive Web Dashboard (Power BI Style)
+│   ├── index.html                                     # Full Interactive BI Web Application
+│   └── data.json                                      # Optimized Aggregated JSON Data Cube
+├── powerbi/                                           # Power BI Resources
+│   └── PowerBI_DAX_Guide.md                           # Star-Schema & Production DAX Measures
 ├── data/
 │   ├── database/
 │   │   └── Data_Rubik_Aug2026_Cleaned.db             # Indexed SQLite DB (316k+ transactions)
@@ -152,6 +171,7 @@ Transaction flow exhibits distinct temporal cycles across the 24-hour window:
 
 ## 🛠 Tech Stack & Analytical Methods
 
+* **BI & Dashboards:** HTML5, Tailwind CSS, Chart.js, Microsoft Power BI DAX Formulas.
 * **Database & SQL:** SQLite3, SQL CTEs (`WITH` clauses), Window Functions (`RANK()`, `SUM() OVER`), Aggregation & Grouping Views.
 * **Data Manipulation:** Python, Pandas, NumPy (Vectorized metrics, temporal extraction, outlier filtering).
 * **Data Visualization:** Matplotlib, Seaborn (Custom themes, dual-axis charts, Pareto curves, 300 DPI exports).

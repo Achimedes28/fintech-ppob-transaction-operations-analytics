@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fintech & PPOB Transaction Operations | Interactive BI Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#F0F9FF',
+              100: '#E0F2FE',
+              500: '#0EA5E9',
+              600: '#0284C7',
+              700: '#0369A1',
+              900: '#0C4A6E',
+            },
+            slate: {
+              850: '#151E2E',
+              900: '#0F172A',
+              950: '#080C15',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="bg-slate-900/80 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-bold text-xl">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-bold text-white tracking-tight">Fintech & PPOB Transaction Operations</h1>
+          <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Interactive BI
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">Executive SLA Diagnostic, Volume Pareto & Smart Routing Dashboard</p>
+      </div>
+    </div>
+
+    <!-- Power BI / Portfolio Badges -->
+    <div class="flex items-center gap-3">
+      <div class="text-right hidden sm:block">
+        <p class="text-xs font-semibold text-slate-300">Novaldi Ramadhan Waluyo</p>
+        <p class="text-[11px] text-sky-400 font-mono">Data & Operations Analyst</p>
+      </div>
+      <a href="https://github.com/Achimedes28/fintech-ppob-transaction-operations-analytics" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+        <i class="fa-brands fa-github text-sm"></i> GitHub Repo
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 p-6 max-w-[1600px] w-full mx-auto space-y-6">
+
+    <!-- CONTROL SLICER / FILTER BAR (Power BI Style) -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl shadow-black/40">
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-800/80 mb-4">
+        <div class="flex items-center gap-2 text-sm font-bold text-sky-400 uppercase tracking-wider">
+          <i class="fa-solid fa-sliders"></i> Interactive Slicers & Filters
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="btn-reset-filters" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-left"></i> Reset Slicers
+          </button>
+          <span id="filtered-records-badge" class="px-2.5 py-1 bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-lg text-xs font-mono font-semibold">
+            Showing 316,376 tx
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Date Slicer -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-regular fa-calendar text-sky-400"></i> Date Filter
+          </label>
+          <select id="filter-date" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition">
+            <option value="ALL">All Dates (Aug 1, 5, 6, 2026)</option>
+            <option value="2026-08-01">2026-08-01 (Saturday)</option>
+            <option value="2026-08-05">2026-08-05 (Wednesday)</option>
+            <option value="2026-08-06">2026-08-06 (Thursday)</option>
+          </select>
+        </div>
+
+        <!-- Biller Slicer -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-server text-sky-400"></i> Upstream Biller
+          </label>
+          <select id="filter-biller" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition">
+            <option value="ALL">All Billers (31 Vendors)</option>
+          </select>
+        </div>
+
+        <!-- Failure Category Filter -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> SLA Risk Threshold
+          </label>
+          <select id="filter-risk" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500 transition">
+            <option value="ALL">All Products</option>
+            <option value="HIGH_FAIL">Critical Risk (Fail Rate > 20%)</option>
+            <option value="MOD_FAIL">Moderate Risk (Fail Rate 10% - 20%)</option>
+            <option value="HEALTHY">Healthy SLA (Fail Rate < 10%)</option>
+          </select>
+        </div>
+
+        <!-- SKU Search -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-magnifying-glass text-sky-400"></i> Search SKU Code
+          </label>
+          <input type="text" id="search-sku" placeholder="e.g. SB20, TNP23, XDF1000..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition">
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI SCORECARD (Dynamic Cards) -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Volume -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-sky-500/50 transition">
+        <div class="absolute -right-3 -bottom-3 text-sky-500/10 text-6xl group-hover:text-sky-500/20 transition">
+          <i class="fa-solid fa-money-bill-transfer"></i>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Volume</p>
+        <h3 id="kpi-total-tx" class="text-3xl font-extrabold text-white mt-1 font-mono">316,376</h3>
+        <p id="kpi-total-sub" class="text-xs text-sky-400 mt-1 flex items-center gap-1">
+          <i class="fa-solid fa-database"></i> 100% of analyzed dataset
+        </p>
+      </div>
+
+      <!-- Success Transactions -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-emerald-500/50 transition">
+        <div class="absolute -right-3 -bottom-3 text-emerald-500/10 text-6xl group-hover:text-emerald-500/20 transition">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Settled Success</p>
+        <h3 id="kpi-success-tx" class="text-3xl font-extrabold text-emerald-400 mt-1 font-mono">284,226</h3>
+        <p id="kpi-success-rate" class="text-xs text-emerald-300 mt-1 flex items-center gap-1 font-semibold">
+          <i class="fa-solid fa-arrow-up"></i> 89.84% SLA Success Rate
+        </p>
+      </div>
+
+      <!-- Failed Transactions -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-rose-500/50 transition">
+        <div class="absolute -right-3 -bottom-3 text-rose-500/10 text-6xl group-hover:text-rose-500/20 transition">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Failed Transactions</p>
+        <h3 id="kpi-failed-tx" class="text-3xl font-extrabold text-rose-400 mt-1 font-mono">32,150</h3>
+        <p id="kpi-fail-rate" class="text-xs text-rose-300 mt-1 flex items-center gap-1 font-semibold">
+          <i class="fa-solid fa-triangle-exclamation"></i> 10.16% Failure SLA Gap
+        </p>
+      </div>
+
+      <!-- Failure Concentration -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-amber-500/50 transition">
+        <div class="absolute -right-3 -bottom-3 text-amber-500/10 text-6xl group-hover:text-amber-500/20 transition">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Biller Vulnerability</p>
+        <h3 class="text-3xl font-extrabold text-amber-400 mt-1 font-mono">60.9%</h3>
+        <p class="text-xs text-amber-300 mt-1 flex items-center gap-1">
+          <i class="fa-solid fa-triangle-exclamation"></i> 19,585 errors from 2 billers
+        </p>
+      </div>
+    </section>
+
+    <!-- CHARTS ROW 1: Status Donut & 24-Hour Traffic Curve -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Status Donut Chart (4 cols) -->
+      <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-sky-400"></i> Overall SLA Status
+          </h2>
+          <span class="text-xs text-slate-400 font-mono">Success vs Failed</span>
+        </div>
+        <div class="relative flex-1 flex items-center justify-center min-h-[260px]">
+          <canvas id="chartStatus"></canvas>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-800 text-center">
+          <div class="bg-slate-950/60 p-2 rounded-xl border border-emerald-500/10">
+            <p class="text-[11px] text-slate-400">Success</p>
+            <p id="donut-succ-val" class="text-sm font-bold text-emerald-400 font-mono">284,226 (89.8%)</p>
+          </div>
+          <div class="bg-slate-950/60 p-2 rounded-xl border border-rose-500/10">
+            <p class="text-[11px] text-slate-400">Failed</p>
+            <p id="donut-fail-val" class="text-sm font-bold text-rose-400 font-mono">32,150 (10.2%)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 24-Hour Load & Failure Dynamics (8 cols) -->
+      <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-wave-square text-sky-400"></i> 24-Hour Traffic Load & Failure Dynamics
+            </h2>
+            <p class="text-xs text-slate-400">Hourly volume overlayed with failure percentage (00:00 - 23:00 WIB)</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px] font-semibold rounded-md">
+              <i class="fa-solid fa-fire text-amber-400"></i> Peak: 18:00 WIB (24.7k tx)
+            </span>
+          </div>
+        </div>
+        <div class="relative flex-1 min-h-[260px]">
+          <canvas id="chartHourly"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARTS ROW 2: Top Products Volume vs Failure & Biller SLA Matrix -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Top 10 Products (7 cols) -->
+      <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-cubes-stacked text-sky-400"></i> Top 10 Products by Volume & Failure Rate
+            </h2>
+            <p class="text-xs text-slate-400">Pareto demand vs SLA failure risk per SKU</p>
+          </div>
+          <span class="text-xs text-slate-400 font-mono">Dual-Axis BI View</span>
+        </div>
+        <div class="relative min-h-[300px]">
+          <canvas id="chartTopProducts"></canvas>
+        </div>
+      </div>
+
+      <!-- Biller SLA Matrix (5 cols) -->
+      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-network-wired text-sky-400"></i> Biller Failure Risk Matrix
+            </h2>
+            <p class="text-xs text-slate-400">% Failure rate and total error contribution</p>
+          </div>
+        </div>
+        <div class="relative min-h-[300px]">
+          <canvas id="chartBillers"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARTS ROW 3: Critical Failure Hotspots & Pareto Concentration -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Critical Failure Hotspots (6 cols) -->
+      <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation"></i> Critical High-Failure SKUs (>1,000 tx)
+            </h2>
+            <p class="text-xs text-slate-400">Severe failure rate anomalies requiring API/vendor review</p>
+          </div>
+          <span class="px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-semibold rounded-md">
+            SLA Breached
+          </span>
+        </div>
+        <div class="relative min-h-[280px]">
+          <canvas id="chartFailHotspots"></canvas>
+        </div>
+      </div>
+
+      <!-- Pareto 80/20 Concentration (6 cols) -->
+      <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-sky-400 flex items-center gap-2">
+              <i class="fa-solid fa-arrow-trend-up"></i> Pareto 80/20 Revenue Concentration
+            </h2>
+            <p class="text-xs text-slate-400">Top 15 SKUs account for 82.4% of total transaction traffic</p>
+          </div>
+          <span class="text-xs text-amber-400 font-mono font-semibold">80% Threshold</span>
+        </div>
+        <div class="relative min-h-[280px]">
+          <canvas id="chartPareto"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE DATA TABLE -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-sky-400"></i> Detailed SKU Performance Table
+          </h2>
+          <p class="text-xs text-slate-400">Sortable breakdown across all active product codes</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-export-csv" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-lg shadow-sky-600/20">
+            <i class="fa-solid fa-file-csv"></i> Export Filtered CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar border border-slate-800 rounded-xl">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-950 text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-800 select-none">
+              <th class="p-3 cursor-pointer hover:text-white" onclick="sortTable('product_code')">Product Code <i class="fa-solid fa-sort ml-1 text-slate-600"></i></th>
+              <th class="p-3 text-right cursor-pointer hover:text-white" onclick="sortTable('total')">Total Volume <i class="fa-solid fa-sort ml-1 text-slate-600"></i></th>
+              <th class="p-3 text-right cursor-pointer hover:text-white" onclick="sortTable('success')">Success Tx <i class="fa-solid fa-sort ml-1 text-slate-600"></i></th>
+              <th class="p-3 text-right cursor-pointer hover:text-white" onclick="sortTable('failed')">Failed Tx <i class="fa-solid fa-sort ml-1 text-slate-600"></i></th>
+              <th class="p-3 text-right cursor-pointer hover:text-white" onclick="sortTable('success_rate')">Success Rate <i class="fa-solid fa-sort ml-1 text-slate-600"></i></th>
+              <th class="p-3 text-right cursor-pointer hover:text-white" onclick="sortTable('fail_rate')">Failure Rate <i class="fa-solid fa-sort ml-1 text-slate-600"></i></th>
+              <th class="p-3 text-center">Status Health</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+            <!-- Populated dynamically via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 pt-2">
+        <span id="table-pagination-info">Showing 1 to 10 of 318 products</span>
+        <div class="flex items-center gap-1">
+          <button id="btn-prev-page" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded disabled:opacity-40 transition">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span id="current-page-num" class="px-2 py-1 bg-slate-950 font-bold text-sky-400 rounded">1</span>
+          <button id="btn-next-page" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded disabled:opacity-40 transition">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
+    <span>Fintech & PPOB Transaction Operations Case Study &copy; 2026 Novaldi Ramadhan Waluyo</span>
+    <span class="text-slate-400">Tech Stack: Python, Pandas, SQLite, Chart.js, Tailwind CSS</span>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC FOR REAL-TIME BI INTERACTION -->
+  <script>
+    // Embedded initial data payload or load dynamically
+    let rawData = null;
+    let filteredProducts = [];
+    let sortColumn = 'total';
+    let sortAsc = false;
+    let currentPage = 1;
+    const pageSize = 10;
+
+    // Charts instances
+    let chartStatusInst = null;
+    let chartHourlyInst = null;
+    let chartTopProdInst = null;
+    let chartBillersInst = null;
+    let chartFailHotspotsInst = null;
+    let chartParetoInst = null;
+
+    // Initialize Dashboard
+    async function initDashboard() {
+      try {
+        const res = await fetch('data.json');
+        if (res.ok) {
+          rawData = await res.json();
+        } else {
+          throw new Error("Local fetch not available");
+        }
+      } catch (e) {
+        console.warn("Falling back to embedded bundle if available", e);
+      }
+
+      if (!rawData) {
+        console.error("Dashboard data could not be loaded.");
+        return;
+      }
+
+      populateBillerDropdown();
+      setupEventListeners();
+      applyFilters();
+    }
+
+    function populateBillerDropdown() {
+      const select = document.getElementById('filter-biller');
+      select.innerHTML = '<option value="ALL">All Billers (31 Vendors)</option>';
+      rawData.billers.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.biller_name;
+        opt.textContent = `${b.biller_name} (${b.total.toLocaleString()} tx)`;
+        select.appendChild(opt);
+      });
+    }
+
+    function setupEventListeners() {
+      document.getElementById('filter-date').addEventListener('change', applyFilters);
+      document.getElementById('filter-biller').addEventListener('change', applyFilters);
+      document.getElementById('filter-risk').addEventListener('change', applyFilters);
+      document.getElementById('search-sku').addEventListener('input', applyFilters);
+      document.getElementById('btn-reset-filters').addEventListener('click', () => {
+        document.getElementById('filter-date').value = 'ALL';
+        document.getElementById('filter-biller').value = 'ALL';
+        document.getElementById('filter-risk').value = 'ALL';
+        document.getElementById('search-sku').value = '';
+        applyFilters();
+      });
+      document.getElementById('btn-prev-page').addEventListener('click', () => {
+        if (currentPage > 1) { currentPage--; renderTable(); }
+      });
+      document.getElementById('btn-next-page').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
+        if (currentPage < totalPages) { currentPage++; renderTable(); }
+      });
+      document.getElementById('btn-export-csv').addEventListener('click', exportTableCSV);
+    }
+
+    function applyFilters() {
+      const selectedDate = document.getElementById('filter-date').value;
+      const selectedBiller = document.getElementById('filter-biller').value;
+      const selectedRisk = document.getElementById('filter-risk').value;
+      const searchSku = document.getElementById('search-sku').value.trim().toUpperCase();
+
+      // Filter the multidimensional cube
+      let cubeFiltered = rawData.cube.filter(row => {
+        if (selectedDate !== 'ALL' && row.transaction_date !== selectedDate) return false;
+        if (selectedBiller !== 'ALL' && row.biller_name !== selectedBiller) return false;
+        if (searchSku && !row.product_code.toUpperCase().includes(searchSku)) return false;
+        return true;
+      });
+
+      // Calculate aggregated metrics
+      let totalTx = 0, successTx = 0, failedTx = 0;
+      let prodMap = {};
+
+      cubeFiltered.forEach(r => {
+        totalTx += r.total;
+        successTx += r.success;
+        failedTx += r.failed;
+
+        if (!prodMap[r.product_code]) {
+          prodMap[r.product_code] = { product_code: r.product_code, total: 0, success: 0, failed: 0 };
+        }
+        prodMap[r.product_code].total += r.total;
+        prodMap[r.product_code].success += r.success;
+        prodMap[r.product_code].failed += r.failed;
+      });
+
+      // Transform product list
+      filteredProducts = Object.values(prodMap).map(p => {
+        const fail_rate = p.total > 0 ? (p.failed / p.total * 100) : 0;
+        const success_rate = p.total > 0 ? (p.success / p.total * 100) : 0;
+        return {
+          ...p,
+          fail_rate: parseFloat(fail_rate.toFixed(2)),
+          success_rate: parseFloat(success_rate.toFixed(2))
+        };
+      });
+
+      // Apply Risk Filter to products
+      if (selectedRisk === 'HIGH_FAIL') {
+        filteredProducts = filteredProducts.filter(p => p.fail_rate > 20);
+      } else if (selectedRisk === 'MOD_FAIL') {
+        filteredProducts = filteredProducts.filter(p => p.fail_rate >= 10 && p.fail_rate <= 20);
+      } else if (selectedRisk === 'HEALTHY') {
+        filteredProducts = filteredProducts.filter(p => p.fail_rate < 10);
+      }
+
+      // Update KPIs
+      const successRate = totalTx > 0 ? (successTx / totalTx * 100).toFixed(2) : 0;
+      const failRate = totalTx > 0 ? (failedTx / totalTx * 100).toFixed(2) : 0;
+
+      document.getElementById('kpi-total-tx').textContent = totalTx.toLocaleString();
+      document.getElementById('kpi-success-tx').textContent = successTx.toLocaleString();
+      document.getElementById('kpi-failed-tx').textContent = failedTx.toLocaleString();
+      document.getElementById('kpi-success-rate').innerHTML = `<i class="fa-solid fa-arrow-up"></i> ${successRate}% SLA Success Rate`;
+      document.getElementById('kpi-fail-rate').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${failRate}% Failure SLA Gap`;
+      document.getElementById('filtered-records-badge').textContent = `Showing ${totalTx.toLocaleString()} tx (${filteredProducts.length} SKUs)`;
+
+      document.getElementById('donut-succ-val').textContent = `${successTx.toLocaleString()} (${successRate}%)`;
+      document.getElementById('donut-fail-val').textContent = `${failedTx.toLocaleString()} (${failRate}%)`;
+
+      currentPage = 1;
+      renderCharts(totalTx, successTx, failedTx, filteredProducts, selectedBiller);
+      renderTable();
+    }
+
+    function renderCharts(totalTx, successTx, failedTx, prodList, selectedBiller) {
+      // 1. STATUS DONUT
+      if (chartStatusInst) chartStatusInst.destroy();
+      const ctxStatus = document.getElementById('chartStatus').getContext('2d');
+      chartStatusInst = new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+          labels: ['Success', 'Failed'],
+          datasets: [{
+            data: [successTx, failedTx],
+            backgroundColor: ['#10B981', '#EF4444'],
+            borderColor: '#0F172A',
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94A3B8', font: { family: 'Plus Jakarta Sans', size: 11 } } }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // 2. HOURLY TRAFFIC (From rawData.hourly or hourly_biller)
+      let hourlyData = [];
+      for (let h = 0; h < 24; h++) {
+        if (selectedBiller === 'ALL') {
+          const hObj = rawData.hourly.find(x => x.transaction_hour === h) || { total: 0, failed: 0 };
+          hourlyData.push(hObj);
+        } else {
+          const hObj = rawData.hourly_biller.find(x => x.transaction_hour === h && x.biller_name === selectedBiller) || { total: 0, failed: 0 };
+          hourlyData.push(hObj);
+        }
+      }
+
+      if (chartHourlyInst) chartHourlyInst.destroy();
+      const ctxHourly = document.getElementById('chartHourly').getContext('2d');
+      chartHourlyInst = new Chart(ctxHourly, {
+        type: 'line',
+        data: {
+          labels: hourlyData.map((_, i) => `${String(i).padStart(2, '0')}:00`),
+          datasets: [
+            {
+              label: 'Hourly Volume',
+              data: hourlyData.map(d => d.total),
+              borderColor: '#38BDF8',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              fill: true,
+              tension: 0.35,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Failure Rate (%)',
+              data: hourlyData.map(d => d.total > 0 ? (d.failed / d.total * 100).toFixed(1) : 0),
+              borderColor: '#EF4444',
+              backgroundColor: '#EF4444',
+              borderDash: [4, 4],
+              pointRadius: 3,
+              tension: 0.2,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { grid: { color: '#1E293B' }, ticks: { color: '#38BDF8', font: { size: 10 } } },
+            y1: { position: 'right', grid: { display: false }, ticks: { color: '#EF4444', callback: v => v + '%' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#94A3B8', font: { size: 11 } } }
+          }
+        }
+      });
+
+      // 3. TOP 10 PRODUCTS BY VOLUME
+      const top10 = [...prodList].sort((a, b) => b.total - a.total).slice(0, 10);
+      if (chartTopProdInst) chartTopProdInst.destroy();
+      const ctxTopProd = document.getElementById('chartTopProducts').getContext('2d');
+      chartTopProdInst = new Chart(ctxTopProd, {
+        type: 'bar',
+        data: {
+          labels: top10.map(p => p.product_code),
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Total Volume',
+              data: top10.map(p => p.total),
+              backgroundColor: '#0284C7',
+              borderRadius: 6,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'Failure Rate (%)',
+              data: top10.map(p => p.fail_rate),
+              borderColor: '#EF4444',
+              pointBackgroundColor: '#EF4444',
+              pointRadius: 4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94A3B8' } },
+            y: { grid: { color: '#1E293B' }, ticks: { color: '#0284C7' } },
+            y1: { position: 'right', grid: { display: false }, ticks: { color: '#EF4444', callback: v => v + '%' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#94A3B8' } }
+          }
+        }
+      });
+
+      // 4. BILLER FAILURE RISK MATRIX
+      const topBillers = rawData.billers.slice(0, 7);
+      if (chartBillersInst) chartBillersInst.destroy();
+      const ctxBillers = document.getElementById('chartBillers').getContext('2d');
+      chartBillersInst = new Chart(ctxBillers, {
+        type: 'bar',
+        data: {
+          labels: topBillers.map(b => b.biller_name),
+          datasets: [{
+            label: 'Failure Rate (%)',
+            data: topBillers.map(b => b.fail_rate),
+            backgroundColor: topBillers.map(b => b.fail_rate > 25 ? '#EF4444' : b.fail_rate > 10 ? '#F97316' : '#10B981'),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8', callback: v => v + '%' } },
+            y: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
+      // 5. CRITICAL FAILURE HOTSPOTS (High fail rate)
+      const hotspots = [...prodList].filter(p => p.total >= 500).sort((a, b) => b.fail_rate - a.fail_rate).slice(0, 8);
+      if (chartFailHotspotsInst) chartFailHotspotsInst.destroy();
+      const ctxHotspots = document.getElementById('chartFailHotspots').getContext('2d');
+      chartFailHotspotsInst = new Chart(ctxHotspots, {
+        type: 'bar',
+        data: {
+          labels: hotspots.map(p => p.product_code),
+          datasets: [{
+            label: 'Failure Rate (%)',
+            data: hotspots.map(p => p.fail_rate),
+            backgroundColor: '#DC2626',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8', callback: v => v + '%' }, max: 70 },
+            y: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
+      // 6. PARETO CONCENTRATION
+      const sortedAll = [...prodList].sort((a, b) => b.total - a.total);
+      const totalVolSum = sortedAll.reduce((acc, c) => acc + c.total, 0) || 1;
+      let runningSum = 0;
+      const pareto15 = sortedAll.slice(0, 15).map(p => {
+        runningSum += p.total;
+        return {
+          code: p.product_code,
+          total: p.total,
+          cumPct: (runningSum / totalVolSum * 100).toFixed(1)
+        };
+      });
+
+      if (chartParetoInst) chartParetoInst.destroy();
+      const ctxPareto = document.getElementById('chartPareto').getContext('2d');
+      chartParetoInst = new Chart(ctxPareto, {
+        type: 'bar',
+        data: {
+          labels: pareto15.map(p => p.code),
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Volume',
+              data: pareto15.map(p => p.total),
+              backgroundColor: '#0EA5E9',
+              borderRadius: 6,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'Cumulative (%)',
+              data: pareto15.map(p => p.cumPct),
+              borderColor: '#F59E0B',
+              pointBackgroundColor: '#F59E0B',
+              pointRadius: 4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94A3B8' } },
+            y: { grid: { color: '#1E293B' }, ticks: { color: '#0EA5E9' } },
+            y1: { position: 'right', max: 100, grid: { display: false }, ticks: { color: '#F59E0B', callback: v => v + '%' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#94A3B8' } }
+          }
+        }
+      });
+    }
+
+    function sortTable(col) {
+      if (sortColumn === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortColumn = col;
+        sortAsc = false;
+      }
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+
+      filteredProducts.sort((a, b) => {
+        let vA = a[sortColumn];
+        let vB = b[sortColumn];
+        if (typeof vA === 'string') {
+          return sortAsc ? vA.localeCompare(vB) : vB.localeCompare(vA);
+        }
+        return sortAsc ? vA - vB : vB - vA;
+      });
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredProducts.slice(start, end);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-500 font-sans">No products match current filters.</td></tr>`;
+      } else {
+        pageData.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-800/40 transition";
+          
+          let badge = '';
+          if (p.fail_rate > 20) {
+            badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Critical SLA</span>`;
+          } else if (p.fail_rate >= 10) {
+            badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Warning</span>`;
+          } else {
+            badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Healthy</span>`;
+          }
+
+          tr.innerHTML = `
+            <td class="p-3 font-bold text-white font-sans">${p.product_code}</td>
+            <td class="p-3 text-right">${p.total.toLocaleString()}</td>
+            <td class="p-3 text-right text-emerald-400">${p.success.toLocaleString()}</td>
+            <td class="p-3 text-right text-rose-400">${p.failed.toLocaleString()}</td>
+            <td class="p-3 text-right text-emerald-300 font-semibold">${p.success_rate}%</td>
+            <td class="p-3 text-right ${p.fail_rate > 20 ? 'text-rose-400 font-bold' : p.fail_rate > 10 ? 'text-amber-400' : 'text-slate-300'}">${p.fail_rate}%</td>
+            <td class="p-3 text-center">${badge}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      const totalItems = filteredProducts.length;
+      const totalPages = Math.ceil(totalItems / pageSize) || 1;
+      document.getElementById('table-pagination-info').textContent = `Showing ${Math.min(start + 1, totalItems)} to ${Math.min(end, totalItems)} of ${totalItems} products`;
+      document.getElementById('current-page-num').textContent = `${currentPage} / ${totalPages}`;
+      document.getElementById('btn-prev-page').disabled = currentPage <= 1;
+      document.getElementById('btn-next-page').disabled = currentPage >= totalPages;
+    }
+
+    function exportTableCSV() {
+      let csv = "Product Code,Total Volume,Success Tx,Failed Tx,Success Rate (%),Failure Rate (%)\n";
+      filteredProducts.forEach(p => {
+        csv += `"${p.product_code}",${p.total},${p.success},${p.failed},${p.success_rate},${p.fail_rate}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fintech_sku_performance_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    window.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>
