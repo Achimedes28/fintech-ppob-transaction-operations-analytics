@@ -1,0 +1,11 @@
+# Private NDA / Anonymization mappings
+anonymization_mapping.json
+
+# OS & Environment files
+.DS_Store
+*.pyc
+__pycache__/
+.env
+
+# Large raw database (if exceeding comfortable GitHub push limits)
+# Data_Rubik_Aug2026_Cleaned.db
