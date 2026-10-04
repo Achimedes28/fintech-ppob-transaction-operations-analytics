@@ -1,0 +1,122 @@
+table _Measures
+	lineageTag: 6b1b88cc-963a-55a2-b422-ca79c57165c0
+
+	measure 'Total Transactions' = COUNTROWS ( Fact_Transactions )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: b945cea4-5734-52b6-a265-28fba3d2f280
+
+	measure 'Successful Transactions' = CALCULATE ( [Total Transactions], Fact_Transactions[Status] = "success" )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: 458502d8-8fc5-5119-a59d-67527a221cb7
+
+	measure 'Failed Transactions' = CALCULATE ( [Total Transactions], Fact_Transactions[Status] = "failed" )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: 0f8df12d-1dc8-51dc-a16e-428356556379
+
+	measure 'Unique Customers' = DISTINCTCOUNT ( Fact_Transactions[Customer ID] )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: a9bc3d26-2731-5934-9f3c-f6535f888b2c
+
+	measure 'Active Billers' = DISTINCTCOUNT ( Fact_Transactions[Biller] )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: 1a02f884-0ae7-51bb-b1cd-7d1d9caf50ff
+
+	measure 'Active SKUs' = DISTINCTCOUNT ( Fact_Transactions[Product Code] )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: 664052e4-bb53-542e-815a-8bf71ae19b19
+
+	measure 'Success Rate %' = DIVIDE ( [Successful Transactions], [Total Transactions] )
+		formatString: 0.00%
+		displayFolder: 2. SLA
+		lineageTag: 407f2dd3-077d-5cfa-99ed-d810877a2aed
+
+	measure 'Failure Rate %' = DIVIDE ( [Failed Transactions], [Total Transactions] )
+		formatString: 0.00%
+		displayFolder: 2. SLA
+		lineageTag: e5e8a631-2a78-5ed3-8505-e17d36497f20
+
+	measure 'Failure Share %' =
+			-- Share of all failures (within the current date / hour selection)
+			DIVIDE (
+			    [Failed Transactions],
+			    CALCULATE ( [Failed Transactions], REMOVEFILTERS ( Dim_Biller ), REMOVEFILTERS ( Dim_Product ), REMOVEFILTERS ( Dim_Partner ) )
+			)
+		formatString: 0.0%
+		displayFolder: 2. SLA
+		lineageTag: 01e2175c-301d-5425-bc59-e172f8476548
+
+	measure 'Volume Share %' =
+			DIVIDE (
+			    [Total Transactions],
+			    CALCULATE ( [Total Transactions], REMOVEFILTERS ( Dim_Biller ), REMOVEFILTERS ( Dim_Product ), REMOVEFILTERS ( Dim_Partner ) )
+			)
+		formatString: 0.0%
+		displayFolder: 2. SLA
+		lineageTag: 1c3a88f4-d63d-56e5-8788-197ecb35784b
+
+	measure 'SLA Status' =
+			VAR FailureRate = [Failure Rate %]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( FailureRate ), BLANK (),
+			        FailureRate > 0.20, "Critical",
+			        FailureRate >= 0.10, "Warning",
+			        "Healthy"
+			    )
+		displayFolder: 2. SLA
+		lineageTag: 0ea1ff47-ee72-55e4-b560-88d0cd9f0253
+
+	measure 'SLA Color' =
+			VAR FailureRate = [Failure Rate %]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        FailureRate > 0.20, "#E5484D",
+			        FailureRate >= 0.10, "#F59E0B",
+			        "#4F7CAC"
+			    )
+		displayFolder: 2. SLA
+		lineageTag: b58e8db4-5408-5ac0-ba50-0de1bb71c71b
+
+	measure 'Cumulative Volume %' =
+			-- Running share of volume when SKUs are ranked from largest to smallest
+			VAR CurrentVolume = [Total Transactions]
+			VAR CumulativeVolume =
+			    SUMX (
+			        FILTER ( ALL ( Dim_Product ), [Total Transactions] >= CurrentVolume ),
+			        [Total Transactions]
+			    )
+			RETURN
+			    IF ( NOT ISBLANK ( CurrentVolume ), DIVIDE ( CumulativeVolume, CALCULATE ( [Total Transactions], ALL ( Dim_Product ) ) ) )
+		formatString: 0.0%
+		displayFolder: 3. Pareto
+		lineageTag: 09b6815b-6301-5173-ba59-2f8e843c48e7
+
+	measure 'Peak Hour Volume' = MAXX ( VALUES ( Dim_Hour[Hour] ), [Total Transactions] )
+		formatString: #,0
+		displayFolder: 1. Volume
+		lineageTag: dfa6f771-8690-5423-928d-cdfab7b62f6d
+
+	column Measures
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c6e391e5-41ef-5e3e-b148-9ab2762b5df8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Measures]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source = ROW ( "Measures", 1 )
+
+	annotation PBI_Id = 0746c94987795a75ae814edb08a3d0de

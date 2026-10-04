@@ -1,0 +1,4 @@
+expression ProjectFolder = "C:\Projects\fintech-ppob-transaction-operations-analytics" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: 5bf480d3-f864-51c6-9e77-5a530fb95d0f
+
+	annotation PBI_ResultType = Text

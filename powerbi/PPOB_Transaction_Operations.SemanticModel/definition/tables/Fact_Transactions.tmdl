@@ -1,0 +1,111 @@
+table Fact_Transactions
+	lineageTag: 24129450-b4a0-5a7c-aa46-99ce4e35ab6f
+
+	column 'Transaction ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 1e83156b-0bd2-59d7-a04b-666c8490941c
+		summarizeBy: none
+		sourceColumn: Transaction ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Request Timestamp'
+		dataType: dateTime
+		formatString: dd mmm yyyy hh:nn:ss
+		lineageTag: d8ac21eb-3483-5623-8c7a-f901fc183437
+		summarizeBy: none
+		sourceColumn: Request Timestamp
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Code'
+		dataType: string
+		lineageTag: a43a0adc-a67f-5274-9e44-f542a96477da
+		summarizeBy: none
+		sourceColumn: Product Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Customer ID'
+		dataType: string
+		isHidden
+		lineageTag: e8161611-c2be-5bd7-895d-6b12ec36811f
+		summarizeBy: none
+		sourceColumn: Customer ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Biller
+		dataType: string
+		lineageTag: effc4fa1-14e9-5268-89c3-0662e019d265
+		summarizeBy: none
+		sourceColumn: Biller
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: e236e7a2-9160-5f41-b320-1540d32ee95b
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column Partner
+		dataType: string
+		lineageTag: d2cb4fb3-7990-5824-a84f-a1e1cff18b57
+		summarizeBy: none
+		sourceColumn: Partner
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 27f5f334-7a6e-5eb0-9802-af2140f5141a
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Hour
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f4d9bbe-6469-5fbb-adf7-cf8fae48d2e1
+		summarizeBy: none
+		sourceColumn: Hour
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Transactions = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(
+				        File.Contents(Text.TrimEnd(ProjectFolder, "\") & "\data\raw\Merged_Data_Rubik_01_05_06_August_2026_Masked.csv"),
+				        [Delimiter = ",", Columns = 10, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]
+				    ),
+				    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    SelectedColumns = Table.SelectColumns(
+				        PromotedHeaders,
+				        {"Transaction ID", "Request Timestamp", "Product Code", "Customer Number", "Biller Name", "Status", "Partner Name", "Transaction Date"}
+				    ),
+				    RenamedColumns = Table.RenameColumns(
+				        SelectedColumns,
+				        {{"Customer Number", "Customer ID"}, {"Biller Name", "Biller"}, {"Partner Name", "Partner"}, {"Transaction Date", "Date"}}
+				    ),
+				    ChangedTypes = Table.TransformColumnTypes(
+				        RenamedColumns,
+				        {{"Transaction ID", Int64.Type}, {"Request Timestamp", type datetime}, {"Product Code", type text}, {"Customer ID", type text},
+				         {"Biller", type text}, {"Status", type text}, {"Partner", type text}, {"Date", type date}},
+				        "en-US"
+				    ),
+				    LowercaseStatus = Table.TransformColumns(ChangedTypes, {{"Status", Text.Lower, type text}}),
+				    AddedHour = Table.AddColumn(LowercaseStatus, "Hour", each Time.Hour([Request Timestamp]), Int64.Type)
+				in
+				    AddedHour
+
+	annotation PBI_ResultType = Table

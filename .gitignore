@@ -9,3 +9,8 @@ __pycache__/
 
 # Large raw database (if exceeding comfortable GitHub push limits)
 # Data_Rubik_Aug2026_Cleaned.db
+
+# Power BI Desktop local files
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+*.pbix.bak

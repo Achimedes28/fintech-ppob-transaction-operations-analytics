@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "PPOB_Transaction_Operations"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0ad48f10-4ab2-5a64-ad29-84a83b84aadd"
+  }
+}

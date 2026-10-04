@@ -1,0 +1,28 @@
+table Dim_Product
+	lineageTag: f69774e6-7342-5b9f-adca-02c2051c1fa2
+
+	column 'Product Code'
+		dataType: string
+		lineageTag: e2f057a8-ba42-5183-82fd-1f074ed7f30b
+		summarizeBy: none
+		sourceColumn: Product Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Volume Rank' = RANKX ( ALL ( Dim_Product ), CALCULATE ( COUNTROWS ( Fact_Transactions ) ), , DESC, DENSE )
+		dataType: int64
+		formatString: 0
+		lineageTag: 83ec7f15-1332-5e6f-99b7-dea886cd8fc9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Product = m
+		mode: import
+		source =
+				let
+				    Source = Table.Distinct(Table.SelectColumns(Fact_Transactions, {"Product Code"}))
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
