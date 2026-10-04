@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "PPOB_Transaction_Operations"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1d7af904-fe0e-5766-a149-120d900ae6da"
+  }
+}

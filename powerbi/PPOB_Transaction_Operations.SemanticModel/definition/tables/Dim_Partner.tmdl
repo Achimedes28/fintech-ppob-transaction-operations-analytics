@@ -1,0 +1,20 @@
+table Dim_Partner
+	lineageTag: d1c931f9-b5de-51f5-a37e-3bbce2de039a
+
+	column Partner
+		dataType: string
+		lineageTag: 0ea879d7-3851-5950-b280-35fcdadd3b23
+		summarizeBy: none
+		sourceColumn: Partner
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Partner = m
+		mode: import
+		source =
+				let
+				    Source = Table.Distinct(Table.SelectColumns(Fact_Transactions, {"Partner"}))
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

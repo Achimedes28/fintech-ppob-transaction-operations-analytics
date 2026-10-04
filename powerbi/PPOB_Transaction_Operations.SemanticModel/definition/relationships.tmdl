@@ -1,0 +1,19 @@
+relationship e024da52-94d4-53e7-a768-69db9f5bd0dc
+	fromColumn: Fact_Transactions.Date
+	toColumn: Dim_Date.Date
+
+relationship 363fa624-0793-5bb9-be2a-2613e19dc3a1
+	fromColumn: Fact_Transactions.Hour
+	toColumn: Dim_Hour.Hour
+
+relationship eca10817-26b1-576f-99e5-54ab088b4b99
+	fromColumn: Fact_Transactions.Biller
+	toColumn: Dim_Biller.Biller
+
+relationship 099eb723-30d6-5a1b-b9e9-f371fe743500
+	fromColumn: Fact_Transactions.Partner
+	toColumn: Dim_Partner.Partner
+
+relationship 42bdfee1-579e-59bf-a44f-f9b76c7cfc04
+	fromColumn: Fact_Transactions.'Product Code'
+	toColumn: Dim_Product.'Product Code'

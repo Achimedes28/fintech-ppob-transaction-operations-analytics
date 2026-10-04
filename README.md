@@ -1,189 +1,88 @@
-# 💳 Fintech & PPOB Transaction Operations Analytics
-### High-Volume Transaction Analysis, Pareto Volume Skew, Vendor SLA Bottlenecks & Smart Routing Strategy
+# Fintech PPOB Transaction Operations Analytics
 
-![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![SQL](https://img.shields.io/badge/SQL-SQLite3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![Interactive BI](https://img.shields.io/badge/Interactive%20BI-Dashboard-0EA5E9?style=for-the-badge&logo=googlechrome&logoColor=white)
-![Power BI](https://img.shields.io/badge/Power%20BI-DAX%20Model-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
-![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=for-the-badge&logo=pandas&logoColor=white)
-![PowerPoint](https://img.shields.io/badge/PowerPoint-Executive%20Deck-D24726?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Completed%20Portfolio-10B981?style=for-the-badge)
+End-to-end analysis of **316,376 transactions** from an Indonesian PPOB (Payment Point Online Bank) switching gateway,
+covering failure root causes, vendor SLA, demand concentration and peak-load behaviour. Delivered as a Power BI
+dashboard, a SQL and Python analysis, and an executive deck.
 
----
+![Power BI](https://img.shields.io/badge/Power%20BI-PBIP-F2C811?logo=powerbi&logoColor=black)
+![SQL](https://img.shields.io/badge/SQL-SQLite-003B57?logo=sqlite&logoColor=white)
+![Python](https://img.shields.io/badge/Python-pandas-3776AB?logo=python&logoColor=white)
 
-## 📌 Executive Summary
+![Power BI dashboard overview](powerbi/preview/01_overview.png)
 
-This project conducts an end-to-end operational data analysis on **316,376 live financial transactions** from an Indonesian Fintech / PPOB (Payment Point Online Bank) switchboard gateway. 
+## Key findings
 
-The primary business objective is to diagnose transaction failure root causes, evaluate vendor (biller) SLA compliance, uncover product demand concentrations, and formulate high-impact operational recommendations to recover lost revenue and enhance end-user customer satisfaction.
+| Metric | Value |
+|---|---|
+| Transactions analysed | 316,376 (1, 5 and 6 August 2026) |
+| Success rate | 89.84% |
+| Failed transactions | 32,150 (10.16%) |
+| Failures from just two billers | 60.9% (`Biller_29`, `Biller_26`) on 19.6% of traffic |
+| Busiest hour | 18:00 WIB, 24,787 transactions |
+| Active ecosystem | 46 partners · 31 billers · 318 SKUs · 291,662 customers |
 
-### 🎯 Key Performance Indicators (KPI Scorecard)
-* **Total Transactions Processed:** `316,376` records
-* **Overall Success Rate:** `89.84%` (`284,226` successful transactions)
-* **System Failure SLA Gap:** `10.16%` (`32,150` failed transactions)
-* **Failure Concentration Risk:** **60.9%** of all system failures originate from just **2 vendor billers** (`Biller_29` and `Biller_26`).
-* **Active Ecosystem Scale:** `46` B2B Partners, `31` Upstream Billers, `318` Unique Product SKUs, `291,662` Unique End-Customers.
+1. **Failures are a vendor problem, not a capacity problem.** `Biller_29` (39.4% failure rate) and `Biller_26` (26.0%)
+   produce 60.9% of all failures. The hourly failure rate stays within roughly 7–13% even at peak load.
+2. **A few denominations are broken.** Among SKUs with at least 1,000 transactions, `XDF1000` fails 58.7% of the time,
+   `XDF2000` 53.8% and `TNP13` 35.0%, which points to catalogue desynchronisation or retired denominations upstream.
+3. **Demand is highly concentrated.** The top 5 SKUs carry 57% of volume and the top 20 carry 81%, so monitoring a
+   short SKU list protects most revenue. `TNP23`, the #3 SKU by volume, fails 22.8% of the time.
+4. **Two daily peaks.** Morning (07:00–09:00, about 20K transactions/hour) and evening (17:00–19:00, 21.3% of daily volume).
+   01:00–04:00 is the quietest window and suits batch reconciliation.
 
----
+## Recommendations
 
-## 💻 Interactive BI Dashboard (Power BI Style Web App)
+| Priority | Action | Expected impact |
+|---|---|---|
+| P1 | Smart fallback routing: reroute traffic when a biller's error rate exceeds 10% in a 5-minute window | Recovers a large share of the ~19.6K failures from the two critical billers |
+| P2 | Automatic retry with backoff on transient errors for top SKUs (`TNP23`, `STU15`) | Higher checkout conversion |
+| P3 | SLA clauses and deposit-balance alerts for `Biller_29` and `Biller_26` | Vendor accountability |
+| P4 | Auto-scale gateway workers for 16:30–20:00 WIB | Stable latency at peak |
 
-Included in this portfolio is a fully interactive, responsive **BI Dashboard** (`dashboard/index.html`) featuring:
-* **Interactive Slicers:** Filter live data by Date (Aug 1, 5, 6), Upstream Biller (31 vendors), SLA Risk Category, and SKU search.
-* **Real-time KPI Cards:** Dynamic recalculation of Volume, Success/Failure counts, and SLA percentages.
-* **6 Interactive Charts:** Hover tooltips, dual-axis volume vs. failure rate curves, horizontal SLA rankings, and Pareto curves.
-* **Interactive Table:** Sortable columns, live SKU search, pagination, and one-click CSV export.
+## Deliverables
 
-> **To View Dashboard Locally:**
-> Double-click `dashboard/index.html` or run `open dashboard/index.html` on macOS.
+| Deliverable | Location | How to use |
+|---|---|---|
+| Power BI dashboard (2 pages) | [`powerbi/`](powerbi/) | Open `PPOB_Transaction_Operations.pbip` in Power BI Desktop, see [setup](powerbi/README.md) |
+| Interactive web dashboard | [`dashboard/index.html`](dashboard/index.html) | Open the file in any browser |
+| SQL analysis | [`sql/queries.sql`](sql/queries.sql) | CTEs, window functions, Pareto queries on the SQLite DB |
+| Python analysis and charts | [`src/`](src/), [`visualizations/`](visualizations/) | `pip install -r requirements.txt` then `python src/analysis_and_charts.py` |
+| Executive deck | [`presentations/`](presentations/) | 10-slide summary for stakeholders |
 
----
+<details>
+<summary>Analysis charts</summary>
 
-## 📊 Visual Insights & Findings
+![Status distribution](visualizations/01_overall_status_distribution.png)
+![Top 10 products](visualizations/02_top10_products_volume_and_failure_rate.png)
+![Critical failure products](visualizations/03_critical_high_failure_products.png)
+![Biller performance](visualizations/04_biller_performance_and_sla.png)
+![Hourly traffic](visualizations/05_hourly_traffic_load_and_failure_trend.png)
+![Pareto](visualizations/06_pareto_volume_concentration.png)
 
-### 1. Overall System Health & Status Distribution
-The baseline system achieves an 89.84% success rate. However, the 10.16% failure rate represents over 32,000 failed transactions across just 3 operational days, creating customer support friction and potential GMV leakage.
+</details>
 
-<p align="center">
-  <img src="visualizations/01_overall_status_distribution.png" width="550" alt="Overall Status Distribution" />
-</p>
-
----
-
-### 2. Product Volume Demand vs Failure Rates
-Demand follows a sharp Pareto curve where the top products generate the majority of volume, but several high-demand products suffer severe failure rates.
-
-* **Star Performer (`SB20`):** Dominates with **79,184 transactions** (25.03% total system volume) with a healthy **94.70%** success rate.
-* **Volume Runner-Up (`XDG1`):** **40,640 transactions** (12.85% total volume) with an excellent **97.05%** success rate.
-* **High-Volume Bottleneck (`TNP23`):** Ranked #3 in demand (**22,334 transactions**) but plagued by a **22.75% failure rate** (5,082 failed recharges).
-
-<p align="center">
-  <img src="visualizations/02_top10_products_volume_and_failure_rate.png" width="850" alt="Top 10 Products Volume and Failure Rate" />
-</p>
-
----
-
-### 3. Critical Failure Hotspots (Micro-SKU SLA Anomalies)
-Analyzing products with at least 1,000 transactions reveals catastrophic operational anomalies in specific denominations:
-
-* **`XDF1000`:** **58.73% Failure Rate** (Only 41.27% success out of 6,203 transactions).
-* **`TNP13`:** **35.00% Failure Rate** (1,640 failures out of 4,686 transactions).
-* **`XDF500`:** **32.26% Failure Rate** (1,289 failures out of 3,996 transactions).
-
-> **Root Cause Diagnostic:** Severe failure spikes on specific denominations (such as the `XDF` and `TNP` series) point to upstream vendor catalog desynchronization, unannounced denomination retirement by telco providers, or depleted partner switchboard deposit balances.
-
-<p align="center">
-  <img src="visualizations/03_critical_high_failure_products.png" width="750" alt="Critical High Failure Products" />
-</p>
-
----
-
-### 4. Vendor (Biller) SLA Breakdown & Failure Concentration
-Vendor performance is severely asymmetric. While primary billers maintain solid SLA, two specific billers are responsible for the vast majority of operational failures:
-
-* **`Biller_27` (Core Backbone):** Processes **159,402 transactions** (50.38% of total volume) with a reliable **94.32%** SLA.
-* **`Biller_31`:** Processes **59,239 transactions** (18.72% share) with a strong **95.92%** SLA.
-* **`Biller_29` (Critical Risk):** Generates a **39.38% Failure Rate** (10,099 failed transactions), contributing **31.4% of all failures across the entire system**.
-* **`Biller_26` (Critical Risk):** Generates a **26.04% Failure Rate** (9,486 failed transactions), contributing **29.5% of all failures**.
-
-Together, **`Biller_29` and `Biller_26` generate 60.9% (19,585 transactions) of all platform errors** despite only handling 19.6% of overall traffic.
-
-<p align="center">
-  <img src="visualizations/04_biller_performance_and_sla.png" width="900" alt="Biller Performance and SLA" />
-</p>
-
----
-
-### 5. 24-Hour Temporal Load Dynamics & Peak Traffic Sizing
-Transaction flow exhibits distinct temporal cycles across the 24-hour window:
-
-* **Evening Prime Peak (17:00 – 19:00 WIB):** Maximum load reaches **24,787 tx/hour at 18:00 WIB**, followed by 21,792 tx/hour at 19:00 WIB. This 3-hour window accounts for **21.3% of daily transaction volume**.
-* **Morning Commute Rush (07:00 – 09:00 WIB):** High sustained traffic averaging ~20,000 tx/hour.
-* **Off-Peak Maintenance Window (01:00 – 04:00 WIB):** Lowest volume (<1,600 tx/hour). Ideal for automated batch reconciliation and system updates.
-* **Failure Correlation:** Failure percentages remain relatively consistent across hours (~9.5% to 11.0%), proving that failures are driven by vendor SLA degradation and SKU errors rather than local network bandwidth saturation.
-
-<p align="center">
-  <img src="visualizations/05_hourly_traffic_load_and_failure_trend.png" width="850" alt="Hourly Traffic and Failure Trend" />
-</p>
-
----
-
-### 6. Pareto 80/20 Volume Distribution
-* **Top 5 SKUs** generate **57.0%** of total transaction volume.
-* **Top 15 SKUs** generate **82.4%** of total system volume.
-* **Operational Takeaway:** Securing high-availability routing and monitoring for just the top 15 SKUs safeguards over 80% of company revenue and transaction traffic.
-
-<p align="center">
-  <img src="visualizations/06_pareto_volume_concentration.png" width="800" alt="Pareto Volume Concentration" />
-</p>
-
----
-
-## 🚀 Strategic Recommendations & Action Plan
-
-| Priority | Strategy | Description | Expected Impact |
-|:---|:---|:---|:---|
-| **P1** | **Dynamic Smart Fallback Routing** | Automatically monitor biller error rates. If `Biller_29` or `Biller_26` error rates exceed 10% in a 5-minute rolling window, instantly reroute traffic to secondary backup billers (e.g. `Biller_27`). | Recovers up to **70% of failed transactions (~22,500 tx per 3-day cycle)**. |
-| **P2** | **Automated Retry with Exponential Backoff** | Implement a 3-attempt automated background retry queue for transient timeout errors on top SKUs (`TNP23`, `STU15`) before returning a hard failure. | Improves checkout conversion by **3.5% - 5.0%**. |
-| **P3** | **Vendor SLA Enforcement & Penalties** | Formally renegotiate vendor contracts with `Biller_29` and `Biller_26`. Implement contractual penalty rebates for SLA dips below 95% and mandate minimum deposit balance alerts. | Offsets operational loss and enforces supplier accountability. |
-| **P4** | **Peak Hours Infrastructure Auto-Scaling** | Dynamically scale API gateway worker pods by +35% during the 16:30 – 20:00 WIB window. | Eliminates gateway latency bottlenecks during peak evening bursts. |
-
----
-
-## 🗂 Project Structure
+## Project structure
 
 ```
 .
-├── dashboard/                                         # Interactive Web Dashboard (Power BI Style)
-│   ├── index.html                                     # Full Interactive BI Web Application
-│   └── data.json                                      # Optimized Aggregated JSON Data Cube
-├── powerbi/                                           # Power BI Resources
-│   └── PowerBI_DAX_Guide.md                           # Star-Schema & Production DAX Measures
+├── powerbi/          Power BI project: semantic model (TMDL), report (PBIR), theme, previews
+├── dashboard/        Standalone HTML dashboard
 ├── data/
-│   ├── database/
-│   │   └── Data_Rubik_Aug2026_Cleaned.db             # Indexed SQLite DB (316k+ transactions)
-│   ├── raw/
-│   │   ├── Merged_Data_Rubik_01_05_06_August_2026_Masked.csv   # Flat CSV Dataset
-│   │   └── Merged_Data_Rubik_01_05_06_August_2026_Masked.xlsx  # Multi-sheet Excel
-│   └── mappings/
-│       └── anonymization_mapping.json                 # Private NDA mapping (gitignored)
-├── sql/
-│   └── queries.sql                                    # CTEs, Window Functions, Pareto Queries
-├── src/
-│   ├── analysis_and_charts.py                         # EDA & High-Res Visualizations Generator
-│   └── generate_pptx.py                               # 16:9 Automated PowerPoint Deck Builder
-├── presentations/
-│   └── Fintech_PPOB_Transaction_Operations_Analytics.pptx # Executive 10-Slide Deck
-├── visualizations/                                    # 300 DPI Exported Visual Assets
-│   ├── 01_overall_status_distribution.png
-│   ├── 02_top10_products_volume_and_failure_rate.png
-│   ├── 03_critical_high_failure_products.png
-│   ├── 04_biller_performance_and_sla.png
-│   ├── 05_hourly_traffic_load_and_failure_trend.png
-│   └── 06_pareto_volume_concentration.png
-├── metrics/
-│   └── summary_metrics.json                           # Computed KPI JSON Payload
-├── .gitignore
-└── README.md                                          # Business Case Documentation
+│   ├── raw/          Masked transaction data (CSV, XLSX)
+│   └── database/     Cleaned SQLite database with indexes and views
+├── sql/              Analytical SQL queries
+├── src/              Python analysis and deck generator
+├── visualizations/   Exported charts
+├── metrics/          KPI summary (JSON)
+└── presentations/    Executive deck (PPTX)
 ```
 
----
+## Data and privacy
 
-## 🛠 Tech Stack & Analytical Methods
+Customer numbers, biller, partner and personal names are pseudonymised with deterministic hashing. The mapping file
+is excluded from version control.
 
-* **BI & Dashboards:** HTML5, Tailwind CSS, Chart.js, Microsoft Power BI DAX Formulas.
-* **Database & SQL:** SQLite3, SQL CTEs (`WITH` clauses), Window Functions (`RANK()`, `SUM() OVER`), Aggregation & Grouping Views.
-* **Data Manipulation:** Python, Pandas, NumPy (Vectorized metrics, temporal extraction, outlier filtering).
-* **Data Visualization:** Matplotlib, Seaborn (Custom themes, dual-axis charts, Pareto curves, 300 DPI exports).
-* **Presentation Engineering:** `python-pptx` (Automated 16:9 executive deck generation with structured layout cards and embedded visuals).
-* **Data Privacy:** Deterministic PII hashing and synthetic ID generation compliant with privacy and NDA standards.
+## Author
 
----
-
-## 👨‍💻 Author & Contact
-
-**Novaldi Ramadhan Waluyo**  
-*Data & Operations Analyst*  
-* 📧 Email: [novaldiramadhan28@gmail.com](mailto:novaldiramadhan28@gmail.com)  
-* 🐙 GitHub: [@Achimedes28](https://github.com/Achimedes28)  
-* 💼 Portfolio Project: Fintech & PPOB Transaction Operations Analytics
+**Novaldi Ramadhan Waluyo**, Data & Operations Analyst
+[novaldiramadhan28@gmail.com](mailto:novaldiramadhan28@gmail.com) · [github.com/Achimedes28](https://github.com/Achimedes28)

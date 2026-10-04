@@ -1,0 +1,20 @@
+table Dim_Biller
+	lineageTag: dae2b60d-9480-50ff-8d54-052018e93524
+
+	column Biller
+		dataType: string
+		lineageTag: 431c1daf-9c99-5076-ac36-3c5ca738f357
+		summarizeBy: none
+		sourceColumn: Biller
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Biller = m
+		mode: import
+		source =
+				let
+				    Source = Table.Distinct(Table.SelectColumns(Fact_Transactions, {"Biller"}))
+				in
+				    Source
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,50 @@
+table Dim_Hour
+	lineageTag: ec139482-870a-53b4-aa20-6c3e0a71c59d
+
+	column Hour
+		dataType: int64
+		formatString: 0
+		lineageTag: 18fb4dd6-4b6f-5d50-bb5e-ccb8c941e931
+		summarizeBy: none
+		sourceColumn: Hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Hour Label'
+		dataType: string
+		lineageTag: 9ad1464d-3fdb-518a-a95e-cbb6f44bf677
+		summarizeBy: none
+		sourceColumn: Hour Label
+		sortByColumn: Hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Time Band'
+		dataType: string
+		lineageTag: fffa6f4f-ddb0-566a-a003-e25ffee766f9
+		summarizeBy: none
+		sourceColumn: Time Band
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Hour = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromList({0..23}, Splitter.SplitByNothing(), {"Hour"}),
+				    Typed = Table.TransformColumnTypes(Source, {{"Hour", Int64.Type}}),
+				    AddedLabel = Table.AddColumn(Typed, "Hour Label", each Text.PadStart(Text.From([Hour]), 2, "0") & ":00", type text),
+				    AddedBand = Table.AddColumn(
+				        AddedLabel,
+				        "Time Band",
+				        each
+				            if [Hour] >= 17 and [Hour] <= 19 then "Evening Peak"
+				            else if [Hour] >= 7 and [Hour] <= 9 then "Morning Rush"
+				            else if [Hour] >= 1 and [Hour] <= 4 then "Off-Peak"
+				            else "Regular",
+				        type text
+				    )
+				in
+				    AddedBand
+
+	annotation PBI_ResultType = Table

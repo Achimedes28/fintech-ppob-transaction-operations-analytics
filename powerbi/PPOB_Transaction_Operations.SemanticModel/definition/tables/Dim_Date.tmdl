@@ -1,0 +1,42 @@
+table Dim_Date
+	lineageTag: dd939bcb-4016-5488-899a-53473b95bbec
+
+	column Date
+		dataType: dateTime
+		formatString: dd mmm yyyy
+		lineageTag: 9a916a42-1bb7-58ef-a20f-a8fd8fb9e5f8
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Date Label'
+		dataType: string
+		lineageTag: eab9bb2e-620a-5418-a5d7-948df1e38e91
+		summarizeBy: none
+		sourceColumn: Date Label
+		sortByColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		dataType: string
+		lineageTag: 27643400-4b09-5528-bb39-e40edd2b11a9
+		summarizeBy: none
+		sourceColumn: Day Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Date = m
+		mode: import
+		source =
+				let
+				    Source = Table.Distinct(Table.SelectColumns(Fact_Transactions, {"Date"})),
+				    AddedLabel = Table.AddColumn(Source, "Date Label", each Date.ToText([Date], "dd MMM yyyy", "en-US"), type text),
+				    AddedDay = Table.AddColumn(AddedLabel, "Day Name", each Date.DayOfWeekName([Date], "en-US"), type text)
+				in
+				    AddedDay
+
+	annotation PBI_ResultType = Table
