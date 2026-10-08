@@ -103,7 +103,10 @@ table Fact_Transactions
 				         {"Biller", type text}, {"Status", type text}, {"Partner", type text}, {"Date", type date}},
 				        "en-US"
 				    ),
-				    LowercaseStatus = Table.TransformColumns(ChangedTypes, {{"Status", Text.Lower, type text}}),
+				    // Same SKU appears as both "XDG1" and "xdg1" in the source; Power BI keys are case-insensitive,
+				    // so codes are upper-cased to keep Dim_Product unique.
+				    UpperProduct = Table.TransformColumns(ChangedTypes, {{"Product Code", each Text.Upper(Text.Trim(_)), type text}}),
+				    LowercaseStatus = Table.TransformColumns(UpperProduct, {{"Status", Text.Lower, type text}}),
 				    AddedHour = Table.AddColumn(LowercaseStatus, "Hour", each Time.Hour([Request Timestamp]), Int64.Type)
 				in
 				    AddedHour

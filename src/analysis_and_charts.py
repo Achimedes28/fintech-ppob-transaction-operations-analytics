@@ -22,11 +22,16 @@ raw_csv_path = os.path.join(project_root, 'data', 'raw', 'Merged_Data_Rubik_01_0
 
 if os.path.exists(db_path):
     conn = sqlite3.connect(db_path)
-    df = pd.read_sql_query('SELECT * FROM transactions', conn)
+    df = pd.read_sql_query('SELECT product_code, biller_name, status, partner_name, customer_number, transaction_hour FROM transactions', conn)
 elif os.path.exists(raw_csv_path):
     df = pd.read_csv(raw_csv_path)
 else:
     raise FileNotFoundError(f"Neither SQLite DB ({db_path}) nor CSV ({raw_csv_path}) found.")
+
+# Standardize product codes: the source mixes upper and lower case for the same SKU
+# (e.g. 'XDG1' and 'xdg1'), so codes are upper-cased before any grouping.
+code_col = 'product_code' if 'product_code' in df.columns else 'Product Code'
+df[code_col] = df[code_col].astype(str).str.strip().str.upper()
 
 # Standardize status
 df['status'] = df['status'].astype(str).str.lower()
@@ -60,9 +65,10 @@ for at in autotexts:
     at.set_fontsize(12)
     at.set_weight('bold')
 
-ax.set_title('Overall Transaction Volume & SLA Health\nTotal Volume: 316,376 Transactions', fontsize=14, weight='bold', pad=20, color='#0F172A')
+ax.set_title(f'Transaction Status\nTotal Volume: {n_total:,} Transactions', fontsize=14, weight='bold', pad=20, color='#0F172A')
 plt.tight_layout()
 fig.savefig(os.path.join(fig_dir, '01_overall_status_distribution.png'), bbox_inches='tight')
+plt.close('all')
 plt.close()
 
 # ---------------------------------------------------------
@@ -109,6 +115,7 @@ for i, txt in enumerate(top10_prod['fail_rate']):
 plt.title('Top 10 Most Demanded Products: Volume vs Failure Rate', fontsize=14, weight='bold', pad=20, color='#0F172A')
 plt.tight_layout()
 fig.savefig(os.path.join(fig_dir, '02_top10_products_volume_and_failure_rate.png'), bbox_inches='tight')
+plt.close('all')
 plt.close()
 
 # ---------------------------------------------------------
@@ -130,6 +137,7 @@ ax.set_ylabel('Product Code (Min. 1,000 Transactions)', fontsize=12, weight='bol
 ax.set_title('Operational SLA Risk: Top High-Failure Products (>1,000 tx)', fontsize=14, weight='bold', pad=20, color='#0F172A')
 plt.tight_layout()
 fig.savefig(os.path.join(fig_dir, '03_critical_high_failure_products.png'), bbox_inches='tight')
+plt.close('all')
 plt.close()
 
 # ---------------------------------------------------------
@@ -168,6 +176,7 @@ ax2.set_xlim(0, 45)
 plt.suptitle('Biller SLA Breakdown: Volume vs Failure Bottlenecks', fontsize=15, weight='bold', y=1.02, color='#0F172A')
 plt.tight_layout()
 fig.savefig(os.path.join(fig_dir, '04_biller_performance_and_sla.png'), bbox_inches='tight')
+plt.close('all')
 plt.close()
 
 # ---------------------------------------------------------
@@ -189,7 +198,7 @@ ax1.fill_between(x, hourly_grp['total'], color='#93C5FD', alpha=0.3)
 ax2.plot(x, hourly_grp['fail_rate'], color='#DC2626', marker='s', linewidth=2, linestyle='--', label='Failure Rate (%)')
 
 ax1.set_xlabel('Hour of Day (00:00 - 23:00 WIB)', fontsize=12, weight='bold', labelpad=10)
-ax1.set_ylabel('Transaction Volume', fontsize=12, weight='bold', color='#2563EB')
+ax1.set_ylabel('Transactions (sum of 3 days)', fontsize=12, weight='bold', color='#2563EB')
 ax2.set_ylabel('Failure Rate (%)', fontsize=12, weight='bold', color='#DC2626')
 ax1.set_xticks(range(0, 24))
 ax1.set_xticklabels([f'{h:02d}:00' for h in range(0, 24)], rotation=45, fontsize=9)
@@ -203,9 +212,10 @@ lines1, labels1 = ax1.get_legend_handles_labels()
 lines2, labels2 = ax2.get_legend_handles_labels()
 ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left', frameon=True)
 
-plt.title('24-Hour Operational Load & Failure Dynamics', fontsize=14, weight='bold', pad=20, color='#0F172A')
+plt.title('24-Hour Load & Failure Rate (1, 5 and 6 Aug 2026 combined)', fontsize=14, weight='bold', pad=20, color='#0F172A')
 plt.tight_layout()
 fig.savefig(os.path.join(fig_dir, '05_hourly_traffic_load_and_failure_trend.png'), bbox_inches='tight')
+plt.close('all')
 plt.close()
 
 # ---------------------------------------------------------
@@ -214,29 +224,30 @@ plt.close()
 pareto_prod = prod_grp.sort_values(by='total', ascending=False).reset_index()
 pareto_prod['cum_vol'] = pareto_prod['total'].cumsum()
 pareto_prod['cum_pct'] = (pareto_prod['cum_vol'] / pareto_prod['total'].sum()) * 100
-pareto_top15 = pareto_prod.head(15)
+pareto_top20 = pareto_prod.head(20)  # top 20 SKUs: the point where cumulative volume passes 80%
 
 fig, ax1 = plt.subplots(figsize=(12, 6), dpi=300)
 ax2 = ax1.twinx()
 
-bars = ax1.bar(range(len(pareto_top15)), pareto_top15['total'], color='#0284C7', alpha=0.85, edgecolor='#0369A1')
-ax2.plot(range(len(pareto_top15)), pareto_top15['cum_pct'], color='#D97706', marker='D', linewidth=2.5, markersize=6)
+bars = ax1.bar(range(len(pareto_top20)), pareto_top20['total'], color='#0284C7', alpha=0.85, edgecolor='#0369A1')
+ax2.plot(range(len(pareto_top20)), pareto_top20['cum_pct'], color='#D97706', marker='D', linewidth=2.5, markersize=6)
 ax2.axhline(80, color='#DC2626', linestyle='--', linewidth=1.5, label='80% Pareto Threshold')
 
 ax1.set_xlabel('Product Code', fontsize=12, weight='bold', labelpad=10)
 ax1.set_ylabel('Transaction Volume', fontsize=12, weight='bold', color='#0284C7')
 ax2.set_ylabel('Cumulative Percentage (%)', fontsize=12, weight='bold', color='#D97706')
-ax1.set_xticks(range(len(pareto_top15)))
-ax1.set_xticklabels(pareto_top15['product_code'], rotation=30, fontsize=10)
+ax1.set_xticks(range(len(pareto_top20)))
+ax1.set_xticklabels(pareto_top20['product_code'], rotation=30, fontsize=10)
 ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda val, p: f'{int(val):,}'))
 ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda val, p: f'{val:.0f}%'))
 ax2.set_ylim(0, 105)
 ax2.grid(False)
 ax2.legend(loc='lower right')
 
-plt.title('Pareto Analysis: Product Volume Concentration (80/20 Rule)', fontsize=14, weight='bold', pad=20, color='#0F172A')
+plt.title('Pareto Analysis: Top 20 SKUs by Volume', fontsize=14, weight='bold', pad=20, color='#0F172A')
 plt.tight_layout()
 fig.savefig(os.path.join(fig_dir, '06_pareto_volume_concentration.png'), bbox_inches='tight')
+plt.close('all')
 plt.close()
 
 # ---------------------------------------------------------

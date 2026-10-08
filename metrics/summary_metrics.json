@@ -15,11 +15,11 @@
     },
     {
       "product_code": "XDG1",
-      "total": 40640,
-      "success": 39442,
-      "failed": 1198,
-      "fail_rate": 2.947834645669291,
-      "success_rate": 97.05216535433071
+      "total": 41492,
+      "success": 40029,
+      "failed": 1463,
+      "fail_rate": 3.5259809119830328,
+      "success_rate": 96.47401908801697
     },
     {
       "product_code": "TNP23",
@@ -78,12 +78,12 @@
       "success_rate": 98.1657848324515
     },
     {
-      "product_code": "XMAX2",
-      "total": 4955,
-      "success": 4727,
-      "failed": 228,
-      "fail_rate": 4.601412714429869,
-      "success_rate": 95.39858728557013
+      "product_code": "TNP13",
+      "total": 4977,
+      "success": 3118,
+      "failed": 1859,
+      "fail_rate": 37.35181836447659,
+      "success_rate": 62.6481816355234
     }
   ],
   "critical_fail_products": [
@@ -97,11 +97,11 @@
     },
     {
       "product_code": "XDF2000",
-      "total": 3630,
-      "success": 1677,
-      "failed": 1953,
-      "fail_rate": 53.80165289256198,
-      "success_rate": 46.19834710743802
+      "total": 3737,
+      "success": 1739,
+      "failed": 1998,
+      "fail_rate": 53.46534653465347,
+      "success_rate": 46.53465346534654
     },
     {
       "product_code": "XDF3000",
@@ -113,11 +113,11 @@
     },
     {
       "product_code": "TNP13",
-      "total": 4686,
-      "success": 3046,
-      "failed": 1640,
-      "fail_rate": 34.99786598378148,
-      "success_rate": 65.00213401621852
+      "total": 4977,
+      "success": 3118,
+      "failed": 1859,
+      "fail_rate": 37.35181836447659,
+      "success_rate": 62.6481816355234
     },
     {
       "product_code": "XDF4000",
@@ -129,19 +129,19 @@
     },
     {
       "product_code": "TNP37",
-      "total": 1234,
-      "success": 817,
+      "total": 1235,
+      "success": 818,
       "failed": 417,
-      "fail_rate": 33.79254457050243,
-      "success_rate": 66.20745542949756
+      "fail_rate": 33.76518218623482,
+      "success_rate": 66.23481781376518
     },
     {
       "product_code": "XDF500",
-      "total": 3996,
+      "total": 4034,
       "success": 2707,
-      "failed": 1289,
-      "fail_rate": 32.25725725725725,
-      "success_rate": 67.74274274274275
+      "failed": 1327,
+      "fail_rate": 32.895389191869114,
+      "success_rate": 67.10461080813089
     },
     {
       "product_code": "TNP17",
@@ -385,5 +385,5 @@
   "unique_customers": 291662,
   "unique_partners": 46,
   "unique_billers": 31,
-  "unique_products": 318
+  "unique_products": 294
 }

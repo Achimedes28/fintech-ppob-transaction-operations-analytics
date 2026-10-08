@@ -97,13 +97,13 @@ p1.font.color.rgb = COLOR_WHITE
 p1.space_after = Pt(10)
 
 p2 = tf.add_paragraph()
-p2.text = "Volume Pareto, SLA Failure Bottlenecks, Peak Load Dynamics & Smart Routing Strategy"
+p2.text = "Volume Concentration, Biller Failure Bottlenecks, Peak Load Patterns & Vendor Risk"
 p2.font.size = Pt(18)
 p2.font.color.rgb = RGBColor(203, 213, 225)
 p2.space_after = Pt(30)
 
 p3 = tf.add_paragraph()
-p3.text = "Dataset: 316,376 Live Operational Transactions | Tech Stack: SQL, Python (Pandas/Seaborn), Tableau | Author: Novaldi Ramadhan Waluyo"
+p3.text = "Dataset: 316,376 masked transactions (1, 5 and 6 Aug 2026) | Tech Stack: SQL, Python (pandas/Seaborn), Power BI | Author: Novaldi Ramadhan Waluyo"
 p3.font.size = Pt(12)
 p3.font.color.rgb = RGBColor(148, 163, 184)
 
@@ -111,12 +111,12 @@ p3.font.color.rgb = RGBColor(148, 163, 184)
 # SLIDE 2: EXECUTIVE SUMMARY & SCORECARD
 # ==============================================================================
 s2 = prs.slides.add_slide(blank_layout)
-add_header(s2, "Executive Summary: Operational Performance & SLA Health")
+add_header(s2, "Executive Summary: Operational Performance")
 
 kpis = [
     ("Total Volume", f"{metrics['total_transactions']:,}", "Analyzed across 3 operational days", COLOR_PRIMARY),
     ("Success Rate", f"{metrics['success_rate_pct']}%", f"{metrics['total_success']:,} settled transactions", COLOR_SUCCESS),
-    ("Failure SLA Risk", f"{metrics['failure_rate_pct']}%", f"{metrics['total_failed']:,} failed transactions", COLOR_DANGER),
+    ("Failure Rate", f"{metrics['failure_rate_pct']}%", f"{metrics['total_failed']:,} failed transactions", COLOR_DANGER),
     ("Failure Concentration", "60.9%", "19,585 failures from 2 billers", RGBColor(217, 119, 6))
 ]
 
@@ -150,7 +150,7 @@ for i, (title, val, sub, col) in enumerate(kpis):
     p2.font.size = Pt(9)
     p2.font.color.rgb = COLOR_TEXT_MUTED
 
-s2.shapes.add_picture(os.path.join(fig_dir, '01_overall_status_distribution.png'), Inches(0.8), Inches(3.1), width=Inches(5.5))
+s2.shapes.add_picture(os.path.join(fig_dir, '01_overall_status_distribution.png'), Inches(1.0), Inches(3.1), height=Inches(3.9))
 
 add_card(s2, Inches(6.6), Inches(3.1), Inches(5.9), Inches(3.9))
 tb_right = s2.shapes.add_textbox(Inches(6.8), Inches(3.2), Inches(5.5), Inches(3.7))
@@ -165,11 +165,11 @@ p_r0.font.color.rgb = COLOR_PRIMARY
 p_r0.space_after = Pt(10)
 
 findings = [
-    ("High Volume Baseline", "System processed 316.3k transactions with an overall 89.84% success rate."),
-    ("Critical Failure Concentration", "Over 60.9% of all system failures originate from just two vendors (Biller_29 & Biller_26), causing 19,585 failed user requests."),
-    ("High-Volume Product Risks", "Key top-tier products like TNP23 (22.3k tx) suffer a 22.75% failure rate, severely hurting user trust and GMV conversion."),
-    ("Product Catalog Outliers", "Certain micro-SKUs like XDF1000 face a catastrophic 58.73% failure rate, indicating severe API misconfiguration or upstream disconnection."),
-    ("Peak Evening Strain", "Transactions peak between 17:00 - 19:00 WIB (up to 24,787 tx/hr), correlating with vendor timeout spikes.")
+    ("Volume Baseline", "316.4k transactions over three days with an overall 89.84% success rate."),
+    ("Failure Concentration", "60.9% of all failures (19,585) come from two billers, Biller_29 and Biller_26, which handle only 19.6% of traffic."),
+    ("High-Volume Product Risk", "TNP23, the #3 SKU by volume (22.3k tx), fails 22.75% of the time."),
+    ("Broken Denominations", "XDF1000 (6.2k tx) fails 58.73% of the time, XDF2000 53.47% and XDF3000 48.28%, pointing to an upstream catalogue or denomination problem."),
+    ("Data Quality", "1,923 transactions (0.6%) used lower-case product codes such as xdg1. They failed 34.9% of the time vs 10.0% for standard codes. Codes were upper-cased before analysis.")
 ]
 
 for title, desc in findings:
@@ -183,7 +183,7 @@ for title, desc in findings:
 # SLIDE 3: PRODUCT POPULARITY & PARETO CONCENTRATION
 # ==============================================================================
 s3 = prs.slides.add_slide(blank_layout)
-add_header(s3, "Product Volume Distribution: Pareto 80/20 Concentration")
+add_header(s3, "Product Volume Distribution: Pareto Concentration")
 
 s3.shapes.add_picture(os.path.join(fig_dir, '06_pareto_volume_concentration.png'), Inches(0.8), Inches(1.5), width=Inches(6.5))
 
@@ -193,18 +193,18 @@ tf_p3 = tb_p3.text_frame
 tf_p3.word_wrap = True
 
 p = tf_p3.paragraphs[0]
-p.text = "Top Revenue Drivers (Volume Analysis)"
+p.text = "Top Volume Drivers"
 p.font.size = Pt(14)
 p.font.bold = True
 p.font.color.rgb = COLOR_PRIMARY
 p.space_after = Pt(12)
 
 points = [
-    ("Heavy Pareto Skew", "Top 5 products generate 57.0% of total volume (180.4k tx). Top 15 products represent 82.4% of total traffic."),
-    ("Leading Star SKU (SB20)", "SB20 alone commands 79,184 transactions (25.03% market share) with a healthy 94.70% success rate."),
-    ("Runner Up (XDG1)", "XDG1 delivers 40,640 transactions (12.85% share) with a resilient 97.05% success rate."),
+    ("Heavy Pareto Skew", "The top 5 SKUs carry 57.3% of volume (181.3k tx). It takes 20 SKUs to pass 80% (81.4%)."),
+    ("Leading SKU (SB20)", "79,184 transactions (25.0% of volume) with a 94.70% success rate."),
+    ("Runner-up (XDG1)", "41,492 transactions (13.1% of volume) with a 96.47% success rate."),
     ("Volume Vulnerability (TNP23)", "Ranked #3 in volume (22,334 tx) but plagued by a 22.75% failure rate (5,082 failed tx)."),
-    ("Operational Implication", "Prioritizing reliability for just the top 3 SKUs safeguards ~45% of total business revenue.")
+    ("Implication", "The top 3 SKUs carry 45.2% of volume, so close monitoring of just three products protects almost half of all transactions.")
 ]
 
 for t, d in points:
@@ -236,7 +236,7 @@ p_c4_0.font.color.rgb = COLOR_DANGER
 p_c4_0.space_after = Pt(4)
 
 p_c4_1 = tf_c4.add_paragraph()
-p_c4_1.text = "1. XDF1000 & XDF500: Extreme failure rates (58.73% and 32.26%) indicate upstream vendor denomination mismatch or depleted balance on partner switchboards.\n2. TNP Series (TNP23 & TNP13): High demand products with 22.75% to 35.00% fail rates need immediate dynamic failover to alternative billers."
+p_c4_1.text = "1. XDF series (Biller_29): XDF1000, XDF2000 and XDF3000 fail 58.73%, 53.47% and 48.28% of the time, which points to a denomination mismatch or a stock/balance problem upstream.\n2. TNP series (Biller_26): TNP13 (37.35%) and TNP23 (22.75%) are high-demand products with high failure. No other biller carries them in this data, so a backup supplier is needed before any failover."
 p_c4_1.font.size = Pt(10.5)
 p_c4_1.font.color.rgb = RGBColor(127, 29, 29)
 
@@ -244,7 +244,7 @@ p_c4_1.font.color.rgb = RGBColor(127, 29, 29)
 # SLIDE 5: BILLER PERFORMANCE & VENDOR SLA VULNERABILITY
 # ==============================================================================
 s5 = prs.slides.add_slide(blank_layout)
-add_header(s5, "Vendor SLA Matrix: Biller Volume vs Failure Concentration")
+add_header(s5, "Biller Performance: Volume vs Failure Concentration")
 
 s5.shapes.add_picture(os.path.join(fig_dir, '04_biller_performance_and_sla.png'), Inches(0.8), Inches(1.5), width=Inches(8.0))
 
@@ -254,18 +254,18 @@ tf_s5 = tb_s5.text_frame
 tf_s5.word_wrap = True
 
 p = tf_s5.paragraphs[0]
-p.text = "Vendor SLA Insights"
+p.text = "Biller Insights"
 p.font.size = Pt(13)
 p.font.bold = True
 p.font.color.rgb = COLOR_PRIMARY
 p.space_after = Pt(10)
 
 b_insights = [
-    ("Biller_27 Dominance", "Handles 50.4% (159.4k tx) with solid 94.3% SLA. Core backbone."),
-    ("Biller_29 Alert", "60.6% success rate (39.38% fail rate!). Contributes 31.4% of all system errors."),
-    ("Biller_26 Bottleneck", "73.96% success rate (26.04% fail). Contributes 29.5% of all errors."),
-    ("Vendor Risk", "Together, Biller_29 & 26 generate 60.9% of system failures despite only 19.6% of volume!"),
-    ("Action Required", "Institute SLA penalty clauses and reroute traffic dynamically when vendor fail rate exceeds 10%.")
+    ("Biller_27 Backbone", "Handles 50.4% of traffic (159.4k tx) at a 94.3% success rate."),
+    ("Biller_29 Alert", "60.6% success rate (39.38% failure rate); 31.4% of all failures."),
+    ("Biller_26 Bottleneck", "73.96% success rate (26.04% failure rate); 29.5% of all failures."),
+    ("Vendor Risk", "Together they cause 60.9% of failures on only 19.6% of volume."),
+    ("No Backup Route", "Their SKUs are not served by any other biller in the data (2 of 19,585 failures), so rerouting first needs a new supplier.")
 ]
 
 for t, d in b_insights:
@@ -296,10 +296,10 @@ p.font.color.rgb = COLOR_PRIMARY
 p.space_after = Pt(10)
 
 t_points = [
-    ("Evening Peak (17:00 - 19:00)", "Peak volume hits at 18:00 WIB (24,787 tx/hr), followed by 19:00 WIB (21,792 tx/hr). Represents 21.3% of daily traffic."),
-    ("Morning Rush (07:00 - 09:00)", "Sustained high load of ~20,000 tx/hr during morning commute and opening hours."),
-    ("Off-Peak Trough (01:00 - 04:00)", "Lowest traffic occurs between 02:00-03:00 WIB (<1,600 tx/hr). Ideal maintenance and batch reconciliation window."),
-    ("Load-Failure Correlation", "Failure rates remain steady around 9.5% - 11.0% across all hours, indicating errors are vendor/SKU-systemic rather than pure server congestion.")
+    ("Evening Peak (17:00 - 19:00)", "18:00 WIB is the busiest hour: 24,787 transactions over the three days (~8.3k per day). 17:00-19:00 carries 21.3% of volume."),
+    ("Morning Load (07:00 - 09:00)", "About 6.7k transactions per hour per day."),
+    ("Off-Peak (01:00 - 04:00)", "02:00-03:00 WIB is the quietest window (~530 transactions per hour per day), suitable for batch reconciliation."),
+    ("Load vs Failure", "Hourly failure rate ranges from 7.0% to 13.4% and does not rise with volume (18:00 is 9.1%), so failures are driven by billers and SKUs, not load.")
 ]
 
 for t, d in t_points:
@@ -330,7 +330,7 @@ p.font.color.rgb = COLOR_PRIMARY
 p.space_after = Pt(8)
 
 p1 = tf1.add_paragraph()
-p1.text = "• 46 Unique B2B Partners integrated into the gateway.\n• Top 5 Partners account for 66.0% (208.9k tx) of total system volume.\n• Partner_07 is the largest client (79,974 tx), followed by Partner_12 (55,304 tx).\n• Risk: Systemic biller failures directly degrade partner SLA, risking B2B churn and SLA penalty clawbacks."
+p1.text = "• 46 Unique B2B Partners integrated into the gateway.\n• Top 5 Partners account for 66.0% (208.9k tx) of total system volume.\n• Partner_07 is the largest client (79,974 tx), followed by Partner_12 (55,304 tx).\n• Risk: biller failures pass straight through to partners and can affect partner retention."
 p1.font.size = Pt(11)
 p1.font.color.rgb = COLOR_TEXT_MAIN
 
@@ -346,7 +346,7 @@ p.font.color.rgb = COLOR_PRIMARY
 p.space_after = Pt(8)
 
 p2 = tf2.add_paragraph()
-p2.text = f"• {metrics['unique_customers']:,} unique customer MSISDNs analyzed.\n• Over 32,150 failed transactions created customer friction and support tickets.\n• Repeat failures cause users to abandon checkout or switch to competitor platforms.\n• Preserving customer lifetime value requires immediate auto-retry and real-time status transparency."
+p2.text = f"• {metrics['unique_customers']:,} unique customer MSISDNs analyzed.\n• 32,150 failed transactions, each a failed purchase attempt for a customer.\n• Repeated failures risk customers abandoning the purchase or switching apps.\n• Clear status messages and safe retries reduce that friction."
 p2.font.size = Pt(11)
 p2.font.color.rgb = COLOR_TEXT_MAIN
 
@@ -355,14 +355,14 @@ tb3 = s7.shapes.add_textbox(Inches(9.0), Inches(1.8), c_w - Inches(0.4), c_h - I
 tf3 = tb3.text_frame
 tf3.word_wrap = True
 p = tf3.paragraphs[0]
-p.text = "Revenue Opportunity"
+p.text = "Recovery Potential (illustrative)"
 p.font.size = Pt(14)
 p.font.bold = True
 p.font.color.rgb = COLOR_ACCENT_TEAL
 p.space_after = Pt(8)
 
 p3 = tf3.add_paragraph()
-p3.text = "• Recovering 70% of failed transactions via Smart Fallback Routing would salvage ~22,500 transactions per 3-day window.\n• Annualized Potential: Recovers ~2.7M transactions and protects millions in GMV.\n• Drastically cuts customer service ticket volume related to 'Pending/Failed' recharges."
+p3.text = "• Every 10% of failures recovered is about 3,200 transactions per 3-day window.\n• The two worst billers account for 19,585 failures, the largest single lever.\n• Revenue impact cannot be estimated: the data has no transaction value."
 p3.font.size = Pt(11)
 p3.font.color.rgb = COLOR_TEXT_MAIN
 
@@ -373,17 +373,17 @@ s8 = prs.slides.add_slide(blank_layout)
 add_header(s8, "Actionable Strategy: 4-Pillar Operational Optimization")
 
 strat_cards = [
-    ("1. Dynamic Smart Routing & Failover", 
-     "Implement real-time health checks on upstream billers. If Biller_29 or Biller_26 failure rate exceeds 10% in a 5-minute rolling window, automatically route traffic to secondary backup billers (e.g. Biller_27 or Biller_19).",
+    ("1. Backup Biller & Health-Based Routing",
+     "Onboard a second supplier for the XDF and TNP product lines (none exists in this data). Then switch traffic automatically when a biller's failure rate passes 10% in a 5-minute window.",
      COLOR_PRIMARY),
     ("2. Automated Retry with Exponential Backoff", 
-     "For transient errors on popular products (TNP23, STU15), implement a 3-attempt automated background retry queue before returning a hard 'FAILED' status to the end user.",
+     "For transient errors on top SKUs (TNP23, STU15), retry up to 3 times with backoff before returning a final 'FAILED' status to the customer.",
      COLOR_ACCENT_TEAL),
-    ("3. Biller SLA Renegotiation & Vendor Penalties", 
-     "Hold Biller_29 and Biller_26 accountable for breaching 95% SLA thresholds. Enforce contract penalty rebates and set minimum balance monitoring alerts.",
+    ("3. Biller Performance Targets",
+     "Agree a success-rate target (e.g. 95%) with Biller_29 and Biller_26, review it weekly, and add deposit-balance alerts.",
      COLOR_DANGER),
-    ("4. Peak Load Capacity & Queue Provisioning", 
-     "Scale gateway worker pods by 35% between 16:30 and 20:00 WIB daily to handle peak bursts of 24.7k+ tx/hr without queue timeouts.",
+    ("4. Peak-Hour Monitoring",
+     "Watch failure rate and latency closely between 16:30 and 20:00 WIB. The data shows no capacity problem yet, so any scaling should follow latency data.",
      RGBColor(217, 119, 6))
 ]
 
@@ -418,10 +418,10 @@ add_header(s9, "Technical Implementation & Portfolio Deliverables")
 
 tech_boxes = [
     ("SQL & Database Engineering", 
-     ["Indexed SQLite schema (`idx_date`, `idx_status`, `idx_biller`).",
+     ["Indexed SQLite schema (`idx_trans_date`, `idx_status`, `idx_biller_name`).",
       "Engineered analytical SQL views (`v_daily_biller_summary`, `v_hourly_traffic`).",
       "Advanced queries: CTEs, Window Functions (`RANK()`, `SUM() OVER`), and Pareto cumulative distributions.",
-      "Instant query response on 316k+ records."],
+      "Product codes normalised to upper case (318 raw codes, 294 real SKUs)."],
      COLOR_PRIMARY),
     ("Python Data Analytics Pipeline",
      ["Pandas for high-volume data cleaning, type coercion & aggregation.",
@@ -430,10 +430,10 @@ tech_boxes = [
       "Automated PowerPoint reporting engine via `python-pptx`."],
      COLOR_ACCENT_TEAL),
     ("Business Impact & BI Modeling",
-     ["Pareto 80/20 product revenue concentration.",
-      "Vendor SLA gap analysis & failure concentration modeling.",
-      "24-Hour peak load capacity sizing.",
-      "Strategic roadmap with estimated 2.7M annualized transaction recovery."],
+     ["Pareto product volume concentration.",
+      "Biller failure concentration analysis.",
+      "24-hour load and failure profile.",
+      "Recommendations limited to what the data can support."],
      COLOR_SUCCESS)
 ]
 
