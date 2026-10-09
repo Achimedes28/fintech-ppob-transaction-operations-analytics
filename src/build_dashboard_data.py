@@ -1,4 +1,6 @@
-"""Rebuild dashboard/data.json from the cleaned SQLite database and embed it in dashboard/index.html.
+"""Step 3 of the pipeline: aggregate the cleaned database and embed the result in dashboard/index.html.
+
+The HTML dashboard has no server, so its data lives inside the page as a JavaScript object.
 
 Run from the project root:  python src/build_dashboard_data.py
 """
@@ -9,8 +11,7 @@ import sqlite3
 import pandas as pd
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB = os.path.join(ROOT, "data", "database", "Data_Rubik_Aug2026_Cleaned.db")
-OUT_JSON = os.path.join(ROOT, "dashboard", "data.json")
+DB = os.path.join(ROOT, "data", "database", "ppob_transactions_aug2026.db")
 HTML = os.path.join(ROOT, "dashboard", "index.html")
 
 df = pd.read_sql_query(
@@ -58,9 +59,6 @@ data = {
     "hourly_biller": records(agg(["transaction_hour", "biller_name"])),
     "cube": records(agg(["transaction_date", "biller_name", "product_code"])),
 }
-
-with open(OUT_JSON, "w") as f:
-    json.dump(data, f)
 
 html = open(HTML, encoding="utf-8").read()
 start = html.index("const rawData = ") + len("const rawData = ")

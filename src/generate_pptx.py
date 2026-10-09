@@ -1,3 +1,10 @@
+"""Step 4 of the pipeline: build the 10-slide executive deck.
+
+Reads metrics/summary_metrics.json and the charts in visualizations/, and writes
+presentations/Fintech_PPOB_Transaction_Operations_Analytics.pptx.
+
+Run from the project root:  python src/generate_pptx.py
+"""
 import os
 import json
 from pptx import Presentation
@@ -200,7 +207,7 @@ p.font.color.rgb = COLOR_PRIMARY
 p.space_after = Pt(12)
 
 points = [
-    ("Heavy Pareto Skew", "The top 5 SKUs carry 57.3% of volume (181.3k tx). It takes 20 SKUs to pass 80% (81.4%)."),
+    ("Heavy Pareto Skew", "The top 5 SKUs carry 57.3% of volume (181.3k tx). 19 of 294 SKUs are enough to pass 80% (80.3%)."),
     ("Leading SKU (SB20)", "79,184 transactions (25.0% of volume) with a 94.70% success rate."),
     ("Runner-up (XDG1)", "41,492 transactions (13.1% of volume) with a 96.47% success rate."),
     ("Volume Vulnerability (TNP23)", "Ranked #3 in volume (22,334 tx) but plagued by a 22.75% failure rate (5,082 failed tx)."),

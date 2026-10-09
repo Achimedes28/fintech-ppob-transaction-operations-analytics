@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- FINTECH & PPOB TRANSACTION OPERATIONS ANALYTICS
--- Database: Data_Rubik_Aug2026_Cleaned.db
+-- Database: ppob_transactions_aug2026.db
 -- Author: Novaldi Ramadhan Waluyo (github.com/Achimedes28)
 -- Total Records: 316,376 Transactions
 -- ==============================================================================

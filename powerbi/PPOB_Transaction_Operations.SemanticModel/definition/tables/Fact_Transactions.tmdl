@@ -85,7 +85,7 @@ table Fact_Transactions
 		source =
 				let
 				    Source = Csv.Document(
-				        File.Contents(Text.TrimEnd(ProjectFolder, "\") & "\data\raw\Merged_Data_Rubik_01_05_06_August_2026_Masked.csv"),
+				        File.Contents(Text.TrimEnd(ProjectFolder, "\") & "\data\raw\ppob_transactions_aug2026_masked.csv"),
 				        [Delimiter = ",", Columns = 10, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]
 				    ),
 				    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
