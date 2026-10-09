@@ -164,7 +164,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Top 5 SKUs carry 57% of volume; the top 20 reach 81%'"
+                  "Value": "'Top 5 SKUs carry 57% of volume; 19 SKUs pass 80%'"
                 }
               }
             },

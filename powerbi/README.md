@@ -11,7 +11,8 @@ It is saved as a **Power BI Project (`.pbip`)**, so the model, DAX and report la
 ![Overview](preview/01_overview.png)
 ![Biller & SKU Diagnostics](preview/02_biller_sku_diagnostics.png)
 
-> The images above are static renders of the report layout built from the same data and theme.
+> The images above are static renders of the report layout built from the same data and theme by
+> [`src/render_powerbi_preview.py`](../src/render_powerbi_preview.py).
 
 ## Open the report
 
@@ -33,7 +34,7 @@ powerbi/
 ├── PPOB_Transaction_Operations.SemanticModel/  # model in TMDL (tables, relationships, DAX)
 ├── PPOB_Transaction_Operations.Report/         # report in PBIR (pages and visuals as JSON)
 ├── theme/PPOB_Minimal.json                     # report theme, importable on its own
-└── preview/                                    # dashboard images used in the READMEs
+└── preview/                                    # static page images used in the READMEs
 ```
 
 ## Data model
